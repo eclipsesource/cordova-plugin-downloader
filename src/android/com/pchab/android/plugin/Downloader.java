@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
@@ -37,7 +36,7 @@ public class Downloader extends CordovaPlugin {
         cordovaActivity = this.cordova.getActivity();
 
         downloadManager = (DownloadManager) cordovaActivity.getSystemService(Context.DOWNLOAD_SERVICE);
-        downloadMap = new HashMap();
+        downloadMap = new HashMap<>();
 
         // Register receiver for Notification actions
         cordovaActivity.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
@@ -58,7 +57,7 @@ public class Downloader extends CordovaPlugin {
         return false;
 
 
-    }    
+    }
 
     private boolean download(JSONArray args, CallbackContext callbackContext)
     {
@@ -67,9 +66,10 @@ public class Downloader extends CordovaPlugin {
         try {
 
             JSONObject arg_object = args.getJSONObject(0);
+            Uri uri = Uri.parse(arg_object.getString("url"));
+            JSONObject headers = arg_object.getJSONObject("headers");
             String path = arg_object.getString("path");
 
-            Uri uri = Uri.parse(arg_object.getString("url"));
             Download mDownload = new Download(path, callbackContext);
 
             DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -80,9 +80,15 @@ public class Downloader extends CordovaPlugin {
             //Set the title of this download, to be displayed in notifications (if enabled).
             request.setTitle(path);
             //Set a description of this download, to be displayed in notifications (if enabled)
-            request.setDescription("Jamendo Music");
+            // request.setDescription("Jamendo Music");
             //Set the local destination for the downloaded file to a path within the application's external files directory
             request.setDestinationInExternalFilesDir(cordovaActivity, Environment.DIRECTORY_DOWNLOADS, path);
+
+            JSONArray names = headers.names();
+            for( int i = 0; i < names.length(); i++ ) {
+                String key = names.getString( i );
+                request.addRequestHeader( key, headers.getString( key ) );
+            }
 
             // save the download
             downloadMap.put(downloadManager.enqueue(request), mDownload);
@@ -98,50 +104,7 @@ public class Downloader extends CordovaPlugin {
         }
     }
 
-    private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
-  
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            DownloadManager.Query query = new DownloadManager.Query();
-            Long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-            query.setFilterById(downloadId);
-            Cursor cursor = downloadManager.query(query);
-
-            if (cursor.moveToFirst()){
-
-                //Retrieve the saved download
-                Download currentDownload = downloadMap.get(downloadId);
-                downloadMap.remove(currentDownload);
-
-                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                int status = cursor.getInt(columnIndex);
-                int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
-                int reason = cursor.getInt(columnReason);
-                
-                switch (status) {
-                    case DownloadManager.STATUS_SUCCESSFUL:
-                        try {
-                            JSONObject entry = new JSONObject();
-                            currentDownload.callbackContext.success(Environment.DIRECTORY_DOWNLOADS);
-                        } catch (Exception e) {
-                            System.err.println("Exception: " + e.getMessage());
-                            currentDownload.callbackContext.error(e.getMessage());
-                        }
-                        break;
-                    case DownloadManager.STATUS_FAILED:
-                        currentDownload.callbackContext.error(reason);
-                        break;
-                    case DownloadManager.STATUS_PAUSED:
-                    case DownloadManager.STATUS_PENDING:
-                    case DownloadManager.STATUS_RUNNING:
-                    default:
-                        break;
-                }
-            }
-        }
-
-    };
+    private BroadcastReceiver downloadReceiver = new DownloadBroadcastReceiver();
 
     private class Download {
         public String path;
@@ -153,4 +116,47 @@ public class Downloader extends CordovaPlugin {
         }
     }
 
+  private class DownloadBroadcastReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive( Context context, Intent intent) {
+
+        DownloadManager.Query query = new DownloadManager.Query();
+        Long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+        query.setFilterById(downloadId);
+        Cursor cursor = downloadManager.query(query);
+
+        if (cursor.moveToFirst()){
+
+            //Retrieve the saved download
+            Download currentDownload = downloadMap.get(downloadId);
+            downloadMap.remove(downloadId);
+
+            int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+            int status = cursor.getInt(columnIndex);
+            int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+            int reason = cursor.getInt(columnReason);
+
+            switch (status) {
+                case DownloadManager.STATUS_SUCCESSFUL:
+                    try {
+                        currentDownload.callbackContext.success( Environment.DIRECTORY_DOWNLOADS);
+                    } catch (Exception e) {
+                        System.err.println("Exception: " + e.getMessage());
+                        currentDownload.callbackContext.error(e.getMessage());
+                    }
+                    break;
+                case DownloadManager.STATUS_FAILED:
+                    currentDownload.callbackContext.error(reason);
+                    break;
+                case DownloadManager.STATUS_PAUSED:
+                case DownloadManager.STATUS_PENDING:
+                case DownloadManager.STATUS_RUNNING:
+                default:
+                    break;
+            }
+        }
+    }
+
+  }
 }
