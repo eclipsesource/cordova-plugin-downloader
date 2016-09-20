@@ -44,16 +44,4 @@
 
   </platform>
 
-  <!-- ios -->
-  <platform name="ios">
-
-    <source-file src="src/ios/Downloader.swift" />
-
-    <config-file target="config.xml" parent="/*">
-      <feature name="Downloader">
-        <param name="ios-package" value="Downloader" />
-      </feature>
-    </config-file>
-  </platform>
-
 </plugin>
