@@ -69,6 +69,7 @@ public class Downloader extends CordovaPlugin {
             Uri uri = Uri.parse(arg_object.getString("url"));
             JSONObject headers = arg_object.getJSONObject("headers");
             String path = arg_object.getString("path");
+            String description = arg_object.getString("description");
 
             Download mDownload = new Download(path, callbackContext);
 
@@ -80,9 +81,12 @@ public class Downloader extends CordovaPlugin {
             //Set the title of this download, to be displayed in notifications (if enabled).
             request.setTitle(path);
             //Set a description of this download, to be displayed in notifications (if enabled)
-            // request.setDescription("Jamendo Music");
+            if (description != null) {
+                request.setDescription(description);
+            }
             //Set the local destination for the downloaded file to a path within the application's external files directory
             request.setDestinationInExternalFilesDir(cordovaActivity, Environment.DIRECTORY_DOWNLOADS, path);
+            request.setNotificationVisibility(true);
 
             JSONArray names = headers.names();
             for( int i = 0; i < names.length(); i++ ) {
