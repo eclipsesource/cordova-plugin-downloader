@@ -30,8 +30,11 @@
   <!-- android -->
   <platform name="android">
 
-    <!-- <source-file
-      src="src/android/libs/support-v4-19.0.0.jar" target-dir="libs/" /> -->
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    </config-file>
+
     <source-file
         src="src/android/com/pchab/android/plugin/Downloader.java"
         target-dir="src/com/pchab/android/plugin" />
