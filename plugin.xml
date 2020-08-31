@@ -3,15 +3,15 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="com.pchab.cordova.plugin.downloader"
-        version="0.1.0">
+        version="1.0.0">
 
   <name>Downloader</name>
 
-  <description>Cordova plugin for downloading feature in jamendo music app</description>
+  <description>Cordova plugin for downloading feature in Tabris.js apps</description>
 
   <repo>https://github.com/pchab/cordova-plugin-downloader.git</repo>
 
-  <keywords>music, download, mobile</keywords>
+  <keywords>pdf, download, mobile</keywords>
 
   <license>Apache 2.0 License</license>
 
