@@ -1,0 +1,30 @@
+{
+  "name": "com.pchab.cordova.plugin.downloader",
+  "displayName": "Downloader",
+  "version": "1.0.0",
+  "description": "Cordova plugin for downloading feature in Tabris.js apps.",
+  "main": "Downloader.js",
+  "keywords": [
+    "ecosystem:cordova",
+    "ecosystem:tabris",
+    "cordova-android",
+    "tabris",
+    "tabris.js",
+    "cordova-plugin-downloader"
+  ],
+  "engines": {
+    "cordovaDependencies": {
+      "5.0.0": {
+        "cordova-android": ">=8.0.0"
+      }
+    }
+  },
+  "author": "Pierre Chabardes",
+  "license": "Apache 2.0 License",
+  "cordova": {
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  }
+}
