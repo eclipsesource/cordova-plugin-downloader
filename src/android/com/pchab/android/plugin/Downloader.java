@@ -84,8 +84,8 @@ public class Downloader extends CordovaPlugin {
             if (description != null) {
                 request.setDescription(description);
             }
-            //Set the local destination for the downloaded file to a path within the application's external files directory
-            request.setDestinationInExternalFilesDir(cordovaActivity, Environment.DIRECTORY_DOWNLOADS, path);
+            //Set the local destination for the downloaded file to a path within the application's external public directory
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, path);
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
             JSONArray names = headers.names();
