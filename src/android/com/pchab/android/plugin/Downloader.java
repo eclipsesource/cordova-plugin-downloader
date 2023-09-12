@@ -135,6 +135,9 @@ public class Downloader extends CordovaPlugin {
             //Retrieve the saved download
             Download currentDownload = downloadMap.get(downloadId);
             downloadMap.remove(downloadId);
+            if(currentDownload == null || currentDownload.callbackContext == null) {
+              return;
+            }
 
             int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
             int status = cursor.getInt(columnIndex);
