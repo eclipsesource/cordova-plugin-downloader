@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
@@ -37,9 +38,13 @@ public class Downloader extends CordovaPlugin {
 
         downloadManager = (DownloadManager) cordovaActivity.getSystemService(Context.DOWNLOAD_SERVICE);
         downloadMap = new HashMap<>();
-
+        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         // Register receiver for Notification actions
-        cordovaActivity.registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        if (Build.VERSION.SDK_INT >= 34) {
+            cordovaActivity.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            cordovaActivity.registerReceiver(downloadReceiver, filter);
+        }
     }
 
     @Override
